@@ -1,0 +1,10 @@
+__pycache__
+.vscode
+work_dir
+frames
+video
+.env
+audio
+.coverage
+htmlcov
+.pytest_cache

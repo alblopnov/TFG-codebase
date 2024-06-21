@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Subir Video</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .balon-fuera { color: #FF5733; } /* Rojo Naranja */
+        .despeje { color: #33FF57; } /* Verde Claro */
+        .corner { color: #3375FF; } /* Azul Claro */
+        .tiro-libre-directo { color: #FF33A6; } /* Rosa */
+        .falta { color: #FFD700; } /* Dorado */
+        .gol { color: #FF0000; } /* Rojo */
+        .tiro-libre-indirecto { color: #8A2BE2; } /* Violeta */
+        .saque-inicial { color: #00FFFF; } /* Cian */
+        .fuera-de-juego { color: #FF4500; } /* Naranja Rojo */
+        .penalti { color: #DC143C; } /* Carmesí */
+        .tarjeta-roja { color: #8B0000; } /* Rojo Oscuro */
+        .tiro { color: #1E90FF; } /* Verde Marino */
+        .tiro-a-puerta { color: #2E8B57; } /* Azul Dodger */
+        .sustitucion { color: #FF8C00; } /* Naranja Oscuro */
+        .saque-de-banda { color: #4682B4; } /* Azul Acero */
+        .tarjeta-amarilla { color: #FFD700; } /* Amarillo */
+        .tarjeta-amarilla-roja { color: #FF6347; } /* Tomate */
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-200">
+        <div class="container mx-auto p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="{{ url_for('static', filename='images/football.webp') }}" alt="Football" class="h-12 w-12">
+                <a href="/index" class="text-blue-600 border-b-2 border-blue-600 transition duration-150 ease-in-out">Evaluar</a>
+                <a href="/about-us" class="text-gray-700 hover:text-blue-600 transition duration-150 ease-in-out">Sobre nosotros</a>
+            </div>
+            <div>
+                <button type="button" onclick="logout()" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100 focus:ring focus:ring-gray-100 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-400">
+                    <strong>Cerrar Sesión</strong>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+                        <path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M6 10a.75.75 0 01.75-.75h9.546l-1.048-.943a.75.75 0 111.004-1.114l2.5 2.25a.75.75 0 010 1.114l-2.5 2.25a.75.75 0 11-1.004-1.114l1.048-.943H6.75A.75.75 0 016 10z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-10 flex {% if video_url %}justify-between{% else %}justify-center{% endif %} items-start transition-all duration-2000 ease-in-out">
+        <div class="w-1/3 {% if not video_url %}hidden{% endif %}">
+            {% if video_url %}
+            <div class="mt-4">
+                <video id="video-player" controls class="w-full rounded shadow">
+                    <source src="{{ video_url }}" type="video/mp4">
+                    Tu navegador no soporta la etiqueta de video.
+                </video>
+            </div>
+            {% endif %}
+        </div>
+        <div class="w-2/3 max-w-lg mx-auto bg-white p-8 rounded shadow transition-transform duration-2000 ease-in-out transform {% if video_url %}translate-x-20{% endif %}">
+            <h1 id="suba-video" class="text-2xl font-bold mb-4 text-center">Suba un video de fútbol</h1>
+            <form id="upload-form" enctype="multipart/form-data" action="/upload" method="post" class="space-y-4">
+                <div id="file-upload-container">
+                    <label for="file" class="block text-sm font-medium text-gray-700">Seleccionar video para subir</label>
+                    <div class="mt-1 flex items-center">
+                        <label class="flex flex-col items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-md cursor-pointer hover:bg-gray-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-gray-200">
+                            <span class="text-base leading-normal">Seleccionar archivo</span>
+                            <input type="file" accept=".mp4" id="file" name="file" class="hidden">
+                        </label>
+                        <span id="file-chosen" class="ml-3 text-sm text-gray-500">Ningún archivo seleccionado</span>
+                    </div>
+                </div>
+                <div id="buttons-container">
+                    <div>
+                        <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-3 px-4 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition ease-in-out duration-150 transform hover:scale-105">Subir Video</button>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Seleccionar vídeos precargados</label>
+                        <button type="button" id="example-video-1" class="w-full bg-blue-100 text-blue-700 py-2 px-4 rounded-md shadow hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100 transition ease-in-out duration-150 mt-2">Video Croacia-España Euro 2024</button>
+                        <button type="button" id="example-video-2" class="w-full bg-blue-100 text-blue-700 py-2 px-4 rounded-md shadow hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100 transition ease-in-out duration-150 mt-2">Video Gol Iniesta 2010</button>
+                        <button type="button" id="example-video-3" class="w-full bg-blue-100 text-blue-700 py-2 px-4 rounded-md shadow hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-100 transition ease-in-out duration-150 mt-2">Video España-Italia Euro 2024</button>
+                    </div>                                    
+                </div>
+                <div id="error-message" class="text-red-600 text-sm font-medium text-center hidden">Por favor, seleccione un archivo para subir.</div>
+                <div id="loader-container" class="hidden text-center">
+                    <div class="loader mx-auto"></div>
+                    <p class="text-gray-700 font-medium mt-2">Procesando</p>
+                </div>
+            </form>
+            <div id="progress-container" class="hidden mt-4">
+                <div class="flex items-center">
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="progress-bar" class="bg-blue-600 h-4 rounded-full" style="width: 0%;"></div>
+                    </div>
+                    <span id="progress-percentage" class="ml-2 text-gray-700 font-medium">0%</span>
+                </div>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="mt-4">
+                    {% for category, message in messages %}
+                    <div class="text-{{ 'green' if category == 'success' else 'red' }}-600 text-sm font-medium text-center">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+            {% if results %}
+            <ul class="mt-4 space-y-2">
+                {% for model_name, video, event_details in results %}
+                <li class="px-4 py-2 rounded shadow bg-blue-100 text-blue-800">
+                    <h3 class="font-bold text-center">Listado de eventos</h3>
+                    <p>
+                        {% if video %}
+                        Para el partido {{ video }} han ocurrido los siguientes eventos:
+                        <ul class="list-disc pl-5">
+                            {% for event in event_details %}
+                            <li>
+                                {% set action_class = '' %}
+                                {% set action_word = '' %}
+                                {% if 'Balón fuera' in event %} {% set action_class = 'balon-fuera' %}{% set action_word = 'Balón fuera' %}
+                                {% elif 'Despeje' in event %} {% set action_class = 'despeje' %}{% set action_word = 'Despeje' %}
+                                {% elif 'Córner' in event %} {% set action_class = 'corner' %}{% set action_word = 'Córner' %}
+                                {% elif 'Tiro libre directo' in event %} {% set action_class = 'tiro-libre-directo' %}{% set action_word = 'Tiro libre directo' %}
+                                {% elif 'Falta' in event %} {% set action_class = 'falta' %}{% set action_word = 'Falta' %}
+                                {% elif 'Gol' in event %} {% set action_class = 'gol' %}{% set action_word = 'Gol' %}
+                                {% elif 'Tiro libre indirecto' in event %} {% set action_class = 'tiro-libre-indirecto' %}{% set action_word = 'Tiro libre indirecto' %}
+                                {% elif 'Saque inicial' in event %} {% set action_class = 'saque-inicial' %}{% set action_word = 'Saque inicial' %}
+                                {% elif 'Fuera de juego' in event %} {% set action_class = 'fuera-de-juego' %}{% set action_word = 'Fuera de juego' %}
+                                {% elif 'Penalti' in event %} {% set action_class = 'penalti' %}{% set action_word = 'Penalti' %}
+                                {% elif 'Tarjeta roja' in event %} {% set action_class = 'tarjeta-roja' %}{% set action_word = 'Tarjeta roja' %}
+                                {% elif 'Tiro a puerta' in event %} {% set action_class = 'tiro-a-puerta' %}{% set action_word = 'Tiro a puerta' %}
+                                {% elif 'Sustitución' in event %} {% set action_class = 'sustitucion' %}{% set action_word = 'Sustitución' %}
+                                {% elif 'Saque de banda' in event %} {% set action_class = 'saque-de-banda' %}{% set action_word = 'Saque de banda' %}
+                                {% elif 'Tarjeta amarilla' in event %} {% set action_class = 'tarjeta-amarilla' %}{% set action_word = 'Tarjeta amarilla' %}
+                                {% elif 'Tarjeta amarilla -> roja' in event %} {% set action_class = 'tarjeta-amarilla-roja' %}{% set action_word = 'Tarjeta amarilla -> roja' %}
+                                {% elif 'Tiro' in event %} {% set action_class = 'tiro' %}{% set action_word = 'Tiro' %}
+                                {% endif %}
+                                <span class="{{ action_class }}">{{ action_word }}</span>{{ event.replace(action_word, '') }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        {{ event_details[0] }}
+                        {% endif %}
+                    </p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if audio_url %}
+            <div class="mt-4">
+                <h2 class="text-xl font-bold text-center">Resumen del partido</h2>
+                <audio controls class="w-full mt-2">
+                    <source src="{{ audio_url }}" type="audio/mpeg">
+                    Tu navegador no soporta la etiqueta de audio.
+                </audio>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('file').addEventListener('change', function() {
+            var fileName = this.files[0].name;
+            document.getElementById('file-chosen').textContent = fileName;
+            document.getElementById('error-message').classList.add('hidden');
+        });
+
+        document.getElementById('example-video-1').addEventListener('click', function() {
+            selectExampleVideo('Resumen-España-Croacia(3-0).mp4');
+        });
+
+        document.getElementById('example-video-2').addEventListener('click', function() {
+            selectExampleVideo('Holanda 0- 1 España (Mundial 2010).mp4');
+        });
+
+        document.getElementById('example-video-3').addEventListener('click', function() {
+            selectExampleVideo('Resumen España - Italia (1-0)  Eurocopa 2024.mp4');
+        });
+
+        function selectExampleVideo(fileName) {
+            document.getElementById('file-chosen').textContent = fileName;
+            document.getElementById('error-message').classList.add('hidden');
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'example_file';
+            input.value = fileName;
+            document.getElementById('upload-form').appendChild(input);
+        }
+
+        document.querySelector('form').addEventListener('submit', function(event) {
+            var fileInput = document.getElementById('file');
+            var exampleFile = document.querySelector('input[name="example_file"]');
+            if (!fileInput.files.length && !exampleFile) {
+                event.preventDefault();
+                document.getElementById('error-message').classList.remove('hidden');
+                return;
+            }
+
+            var videoPlayer = document.getElementById('video-player');
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.src = "";
+                videoPlayer.load();
+            }
+
+            document.getElementById('file-upload-container').classList.add('hidden');
+            document.getElementById('suba-video').classList.add('hidden');
+            document.getElementById('buttons-container').classList.add('hidden');
+            document.getElementById('loader-container').classList.remove('hidden');
+
+            var progressContainer = document.getElementById('progress-container');
+            var progressBar = document.getElementById('progress-bar');
+            var progressPercentage = document.getElementById('progress-percentage');
+            progressContainer.classList.remove('hidden');
+
+            var source = new EventSource("/progress");
+            source.onmessage = function(event) {
+                var progress = event.data;
+                progressBar.style.width = progress + '%';
+                progressPercentage.textContent = progress + '%';
+
+                if (progress == '100') {
+                    source.close();
+                    progressContainer.classList.add('hidden');
+                    fetch('/reset_progress', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => {
+                        if (!response.ok) {
+                            alert('Error resetting progress');
+                        }
+                    });
+                }
+            };
+        });
+
+        async function logout() {
+            const response = await fetch('/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.href = '/auth/login';
+            } else {
+                alert('Error al cerrar sesión');
+            }
+        }
+    </script>
+</body>
+</html>

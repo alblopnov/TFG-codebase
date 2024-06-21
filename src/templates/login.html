@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Iniciar Sesión</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto p-4 fade-in">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-xl">
+            <div class="flex justify-center mb-1">
+                <img src="{{ url_for('static', filename='images/football.webp') }}" alt="Football" class="h-32 w-32">
+            </div>
+            <h1 class="text-3xl font-extrabold mb-1 text-center text-gray-800">Iniciar Sesión</h1>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="mt-4">
+                    {% for category, message in messages %}
+                    <div class="text-{{ 'green' if category == 'success' else 'red' }}-600 text-sm font-medium text-center">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+            <form id="login-form" class="space-y-6" onsubmit="login(); return false;">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
+                    <input type="text" id="username" name="username" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="password" name="password" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white transition duration-150 ease-in-out">Iniciar Sesión</button>
+                </div>
+                <div id="error-message" class="text-red-600 text-sm font-medium text-center hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const errorMessage = document.getElementById('error-message');
+            if (response.ok) {
+                window.location.href = '/index';
+            } else {
+                const data = await response.json();
+                errorMessage.textContent = data.msg;
+                errorMessage.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
