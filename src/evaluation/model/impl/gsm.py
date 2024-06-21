@@ -16,11 +16,13 @@ class _GSM(nn.Module):
         self.relu = nn.ReLU()
 
     def lshift_zeroPad(self, x):
-        zero_tensor = torch.tensor(0, dtype=torch.float32, device='cuda')
+        device = x.device  # Usar el mismo dispositivo que el tensor de entrada
+        zero_tensor = torch.tensor(0, dtype=torch.float32, device=device)
         return torch.cat((x[:,:,1:], zero_tensor.expand(x.size(0), x.size(1), 1, x.size(3), x.size(4))), dim=2)
 
     def rshift_zeroPad(self, x):
-        zero_tensor = torch.tensor(0, dtype=torch.float32, device='cuda')
+        device = x.device  # Usar el mismo dispositivo que el tensor de entrada
+        zero_tensor = torch.tensor(0, dtype=torch.float32, device=device)
         return torch.cat((zero_tensor.expand(x.size(0), x.size(1), 1, x.size(3), x.size(4)), x[:,:,:-1]), dim=2)
 
     def forward(self, x):

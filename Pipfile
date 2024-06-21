@@ -27,7 +27,7 @@ coverage = "7.5.3"
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.11"
 
 [scripts]
 install_torch = "pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118"

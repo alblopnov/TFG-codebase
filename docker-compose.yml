@@ -5,14 +5,5 @@ services:
     build: .
     ports:
       - "5000:5000"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - .:/app

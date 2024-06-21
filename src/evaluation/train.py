@@ -198,7 +198,7 @@ class E2EModel(BaseRGBModel):
 
             clip_len = true_clip_len
             if self._require_clip_len > 0:
-                # TSM module requires clip len to be known
+                # TSM module requiere conocer la longitud del clip
                 assert true_clip_len <= self._require_clip_len, \
                     'Expected {}, got {}'.format(
                         self._require_clip_len, true_clip_len)
@@ -212,7 +212,7 @@ class E2EModel(BaseRGBModel):
             ).reshape(batch_size, clip_len, self._feat_dim)
 
             if true_clip_len != clip_len:
-                # Undo padding
+                # Deshacer el padding
                 im_feat = im_feat[:, :true_clip_len, :]
 
             return self._pred_fine(im_feat)
@@ -258,7 +258,7 @@ class E2EModel(BaseRGBModel):
                 frame = loader.dataset.load_frame_gpu(batch, self.device)
                 label = batch['label'].to(self.device)
 
-                # Depends on whether mixup is used
+                # Depende de si se usa mixup
                 label = label.flatten() if len(label.shape) == 2 \
                     else label.view(-1, label.shape[-1])
 
@@ -281,7 +281,7 @@ class E2EModel(BaseRGBModel):
 
                 epoch_loss += loss.detach().item()
 
-        return epoch_loss / len(loader)     # Avg loss
+        return epoch_loss / len(loader)     # Promedio de pérdida
 
     def predict(self, seq, use_amp=True):
         if not isinstance(seq, torch.Tensor):
@@ -312,7 +312,7 @@ def evaluate(model, dataset, split, classes, save_pred, calc_stats=False,
             np.zeros((video_len, len(classes) + 1), np.float32),
             np.zeros(video_len, np.int32))
 
-    # Do not up the batch size if the dataset augments
+    # No aumentar el tamaño del batch si el dataset se augmenta
     batch_size = 1 if dataset.augment else INFERENCE_BATCH_SIZE
 
     for clip in tqdm(DataLoader(
@@ -320,7 +320,7 @@ def evaluate(model, dataset, split, classes, save_pred, calc_stats=False,
             batch_size=batch_size
     )):
         if batch_size > 1:
-            # Batched by dataloader
+            # Batches por dataloader
             _, batch_pred_scores = model.predict(clip['frame'])
 
             for i in range(clip['frame'].shape[0]):
@@ -339,7 +339,7 @@ def evaluate(model, dataset, split, classes, save_pred, calc_stats=False,
                 support[start:end] += 1
 
         else:
-            # Batched by dataset
+            # Batches por dataset
             scores, support = pred_dict[clip['video'][0]]
 
             start = clip['start'][0].item()
@@ -433,7 +433,7 @@ def get_datasets(args):
 
     val_data_frames = None
     if args.criterion == 'map':
-        # Only perform mAP evaluation during training if criterion is mAP
+        # Solo realizar evaluación de mAP durante el entrenamiento si el criterio es mAP
         val_data_frames = ActionSpotVideoDataset(
             classes, os.path.join('data', args.dataset, 'val.json'),
             args.frame_dir, args.modality, args.clip_len,
@@ -532,13 +532,16 @@ def main(args):
         pin_memory=True, num_workers=BASE_NUM_WORKERS,
         worker_init_fn=worker_init_fn)
 
+    # Configurar dispositivo
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     model = E2EModel(
         len(classes) + 1, args.feature_arch, args.temporal_arch,
         clip_len=args.clip_len, modality=args.modality,
-        multi_gpu=args.gpu_parallel)
+        multi_gpu=args.gpu_parallel, device=device)
     optimizer, scaler = model.get_optimizer({'lr': args.learning_rate})
 
-    # Warmup schedule
+    # Programar warmup
     num_steps_per_epoch = len(train_loader) // args.acc_grad_iter
     num_epochs, lr_scheduler = get_lr_scheduler(
         args, optimizer, num_steps_per_epoch)
@@ -553,7 +556,7 @@ def main(args):
             args, model, optimizer, scaler, lr_scheduler)
         epoch += 1
 
-    # Write it to console
+    # Escribirlo en la consola
     store_config('/dev/stdout', args, num_epochs, classes)
 
     for epoch in range(epoch, num_epochs):
@@ -613,10 +616,10 @@ def main(args):
         model.load(torch.load(os.path.join(
             args.save_dir, 'checkpoint_{:03d}.pt'.format(best_epoch))))
 
-        # Evaluate on VAL if not already done
+        # Evaluar en VAL si no se ha hecho ya
         eval_splits = ['val'] if args.criterion != 'map' else []
 
-        # Evaluate on hold out splits
+        # Evaluar en splits de prueba
         eval_splits += ['test', 'challenge']
         for split in eval_splits:
             split_path = os.path.join(
@@ -639,5 +642,4 @@ def main(args):
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-    torch.cuda.set_device(0)
     main(get_args())
