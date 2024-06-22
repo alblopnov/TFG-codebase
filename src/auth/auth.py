@@ -6,6 +6,7 @@ from flask_jwt_extended import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from util.utils import limpiar_carpetas
+import time
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -40,6 +41,7 @@ def logout():
     unset_jwt_cookies(response)
     session.clear()
     carpetas = ['video', 'audio', 'frames']
+    time.sleep(0.5)
     limpiar_carpetas(carpetas)
     return response
 
