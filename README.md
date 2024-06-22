@@ -107,18 +107,21 @@ SoccerIze can also be deployed using Docker. Follow these steps to set up the Do
    Navigate to the web application URL. Log in using the provided credentials:
    - **Username**: tfg-?admin?
    - **Password**: tfg-?admin?
-     ![Login](https://github.com/alblopnov/TFG-codebase/assets/74500641/39182fd3-24c7-4a28-86c4-01a46fd0602e)
+     
+![Login](https://github.com/alblopnov/TFG-codebase/assets/74500641/39182fd3-24c7-4a28-86c4-01a46fd0602e)
 
 2. **Select a Video**
    - You can either upload a new video in `.mp4` format or select from the pre-loaded videos.
-     ![index](https://github.com/alblopnov/TFG-codebase/assets/74500641/86ffaa5a-c9d9-4294-8b64-03db5c64873f)
+
+![index](https://github.com/alblopnov/TFG-codebase/assets/74500641/86ffaa5a-c9d9-4294-8b64-03db5c64873f)
 
 3. **Upload a Video**
    - Click on "Upload Video" to start the analysis and narration generation. The process may take several minutes depending on the video length.
 
 4. **View Results**
    - Once the processing is complete, the results will be displayed with the video, detected events, and the generated audio narration.
-     ![image](https://github.com/alblopnov/TFG-codebase/assets/74500641/6d4ad938-f7b0-414d-8ae2-971643cde573)
+
+![image](https://github.com/alblopnov/TFG-codebase/assets/74500641/6d4ad938-f7b0-414d-8ae2-971643cde573)
 
 5. **Logout**
    - To log out, click on the logout button. This will clear all session data.
