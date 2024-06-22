@@ -11,19 +11,23 @@ ENV DEBIAN_FRONTEND=noninteractive \
     OPENAI_API_KEY=api_key \
     PYTHONPATH=/app 
 
-# Update and install dependencies
+# Install dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3-pip python3-dev ffmpeg
-
-# Clean up to reduce image size
-RUN rm -rf /var/lib/apt/lists/*
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv python3-pip python3-dev ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY . /app
 
+# Install pipenv
+RUN pip install pipenv
+
 # Install Python dependencies
-RUN pip3 install pipenv
-RUN pipenv install 
+RUN pipenv --python 3.11 install
 
 # Install PyTorch with CUDA support
 RUN pipenv run pip3 uninstall -y torch torchvision torchaudio
