@@ -41,10 +41,11 @@ Ensure your system meets the following requirements:
      ```
    - Update the `.env` file with the generated values and your OpenAI API key. Ensure it looks like the following:
      ```
-     SECRET_KEY=your_generated_secret_key
-     API_KEY=your_openai_api_key
-     USER=tfg-?admin?
-     PASSWORD=tfg-?admin?
+     SECRET_KEY=example_secret_key
+     JWT_SECRET_KEY=example_jwt_secret_key
+     ADMIN_USERNAME=user
+     ADMIN_PASSWORD=password
+     OPENAI_API_KEY=openai_api_key
      ```
 
 3. **Install Pipenv**
@@ -90,10 +91,11 @@ SoccerIze can also be deployed using Docker. Follow these steps to set up the Do
      ```
    - Update the `env` section of the Dockerfile with the generated values and your OpenAI API key. Ensure it looks like the following:
      ```
-     SECRET_KEY=your_generated_secret_key
-     API_KEY=your_openai_api_key
-     USER=tfg-?admin?
-     PASSWORD=tfg-?admin?
+     SECRET_KEY=example_secret_key
+     JWT_SECRET_KEY=example_jwt_secret_key
+     ADMIN_USERNAME=user
+     ADMIN_PASSWORD=password
+     OPENAI_API_KEY=openai_api_key
      ```
 
 3. **Build the Docker Image**
