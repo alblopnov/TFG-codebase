@@ -199,11 +199,16 @@
         function selectExampleVideo(fileName) {
             document.getElementById('file-chosen').textContent = fileName;
             document.getElementById('error-message').classList.add('hidden');
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'example_file';
-            input.value = fileName;
-            document.getElementById('upload-form').appendChild(input);
+            var existingInput = document.querySelector('input[name="example_file"]');
+            if (existingInput) {
+                existingInput.value = fileName;
+            } else {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'example_file';
+                input.value = fileName;
+                document.getElementById('upload-form').appendChild(input);
+            }
         }
 
         document.querySelector('form').addEventListener('submit', function(event) {
@@ -256,6 +261,12 @@
         });
 
         async function logout() {
+            const videoPlayer = document.getElementById('video-player');
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.src = "";
+                videoPlayer.load();
+            }
             const response = await fetch('/auth/logout', {
                 method: 'POST',
                 headers: {

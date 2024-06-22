@@ -1,4 +1,5 @@
 import os
+import time
 from flask import Blueprint, request, jsonify, render_template, session, flash, redirect, url_for, current_app
 from flask_jwt_extended import (
     JWTManager, create_access_token, jwt_required,
@@ -40,6 +41,7 @@ def logout():
     unset_jwt_cookies(response)
     session.clear()
     carpetas = ['video', 'audio', 'frames']
+    time.sleep(0.5)
     limpiar_carpetas(carpetas)
     return response
 
